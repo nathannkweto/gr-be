@@ -1,45 +1,57 @@
-from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from io import BytesIO
 
 def create_pdf_from_dict(data: dict, title: str = "Quote Request") -> BytesIO:
     """
-    Creates a styled PDF from a dictionary of form fields.
+    Creates a styled PDF from a dictionary of form fields with proper word wrapping.
     """
     buffer = BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            rightMargin=50, leftMargin=50,
+                            topMargin=50, bottomMargin=50)
 
-    # Title
-    pdf.setFont("Helvetica-Bold", 16)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawString(100, height - inch, title)
-    pdf.setFillColor(colors.black)
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        textColor=colors.darkblue,
+        spaceAfter=12
+    )
+    key_style = ParagraphStyle(
+        'KeyStyle',
+        parent=styles['Normal'],
+        fontName="Helvetica-Bold",
+        spaceAfter=2
+    )
+    value_style = ParagraphStyle(
+        'ValueStyle',
+        parent=styles['Normal'],
+        fontName="Helvetica",
+        spaceAfter=10
+    )
 
-    # Draw a separator line
-    pdf.setStrokeColor(colors.grey)
-    pdf.setLineWidth(0.5)
-    pdf.line(100, height - inch - 5, width - 100, height - inch - 5)
+    elements = []
 
-    # Start position for form fields
-    y_position = height - inch - 30
+    # Add title
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 12))
 
-    pdf.setFont("Helvetica", 12)
+    # Add a separator line (fake using underscores)
+    elements.append(Paragraph("<font color='grey'>__________________________________________________</font>", styles['Normal']))
+    elements.append(Spacer(1, 12))
+
+    # Add form fields
     for key, value in data.items():
-        pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(100, y_position, f"{key}:")
-        pdf.setFont("Helvetica", 12)
-        pdf.drawString(250, y_position, str(value))
-        y_position -= 20
+        elements.append(Paragraph(f"{key}:", key_style))
+        elements.append(Paragraph(str(value), value_style))
 
-        # New page if content overflows
-        if y_position < 50:
-            pdf.showPage()
-            y_position = height - inch
-
-    pdf.showPage()
-    pdf.save()
+    # Build PDF
+    doc.build(elements)
     buffer.seek(0)
     return buffer

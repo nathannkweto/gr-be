@@ -20,10 +20,10 @@ def submit_form():
 
     email_service = current_app.email_service
     email_service.send_email_with_pdf(
-        subject="New Form Submission",
+        subject="New Quote Request",
         recipient=recipient,
         pdf_buffer=pdf_buffer,
-        filename="form_submission.pdf"
+        filename="project_overview.pdf"
     )
 
     return jsonify({"status": "success", "message": f"PDF sent to {recipient}"}), 200
