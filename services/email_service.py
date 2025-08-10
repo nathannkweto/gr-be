@@ -31,21 +31,21 @@ class EmailService:
         # Plain-text fallback
         text_body = (
             f"Hello,\n\n"
-            f"Please find attached the PDF copy of your form submission.\n"
-            f"If you have any questions, reply to this email.\n\n"
-            f"Best regards,\nYour Company"
+            f"Someone requested for a quote.\n"
+            f"Please find the details of their request in the attached pdf.\n\n"
+            f"Best regards,\nNathan"
         )
 
         # HTML body with styling
         html_body = f"""
         <html>
             <body style="font-family: Arial, sans-serif; color: #333;">
-                <h2 style="color: #004080;">Form Submission Received</h2>
+                <h2 style="color: #004080;">New Quote Request</h2>
                 <p>Dear user,</p>
-                <p>Thank you for your submission. Please find attached the PDF copy of your form details.</p>
-                <p style="margin-top: 20px;">If you have any questions, just reply to this email.</p>
+                <p>Someone requested for a quote. Please find attached the PDF copy of the quote request details.</p>
+                <p style="margin-top: 20px;">Don't forget to contact them through their email.</p>
                 <br>
-                <p style="font-size: 14px; color: #666;">Best regards,<br>Your Company</p>
+                <p style="font-size: 14px; color: #666;">Best regards,<br>Nathan</p>
             </body>
         </html>
         """

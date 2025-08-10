@@ -4,7 +4,7 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 from io import BytesIO
 
-def create_pdf_from_dict(data: dict, title: str = "Form Submission") -> BytesIO:
+def create_pdf_from_dict(data: dict, title: str = "Quote Request") -> BytesIO:
     """
     Creates a styled PDF from a dictionary of form fields.
     """
