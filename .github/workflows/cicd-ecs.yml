@@ -1,0 +1,68 @@
+name: Build and deploy to ECS (Fargate)
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+      ECR_REPOSITORY: my-flask-app
+      ECS_CLUSTER: my-flask-cluster
+      ECS_SERVICE: my-flask-service
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag and push image to ECR
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          REPO=${{ env.ECR_REPOSITORY }}
+
+          # ensure repository exists (idempotent)
+          aws ecr describe-repositories --repository-names $REPO || aws ecr create-repository --repository-name $REPO
+
+          docker build -t $REPO:$IMAGE_TAG .
+          docker tag $REPO:$IMAGE_TAG $REGISTRY/$REPO:$IMAGE_TAG
+          docker push $REGISTRY/$REPO:$IMAGE_TAG
+
+          echo "IMAGE_URI=$REGISTRY/$REPO:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Render task definition (replace image)
+        id: render
+        run: |
+          IMAGE_URI=${{ steps.build-and-deploy.outputs.IMAGE_URI || '' }}
+          # if GITHUB_OUTPUT didn't get populated, compute again:
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          IMAGE_URI=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+
+          jq --arg IMAGE "$IMAGE_URI" '.containerDefinitions[0].image=$IMAGE' ecs/task-def.json > taskdef.json
+          cat taskdef.json
+
+      - name: Register task definition
+        run: |
+          aws ecs register-task-definition --cli-input-json file://taskdef.json > registered-task.json
+          TASK_ARN=$(jq -r '.taskDefinition.taskDefinitionArn' registered-task.json)
+          echo "TASK_ARN=$TASK_ARN" >> $GITHUB_OUTPUT
+
+      - name: Deploy to ECS (update service)
+        run: |
+          aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
