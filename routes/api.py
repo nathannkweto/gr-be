@@ -6,7 +6,7 @@ from services.email_service import EmailService
 form_bp = Blueprint("form", __name__)
 
 
-@form_bp.route("/submit", methods=["POST"])
+@form_bp.route("/quote", methods=["POST"])
 def submit_form():
     data = request.get_json()
     if not data:
@@ -26,4 +26,4 @@ def submit_form():
         filename="project_overview.pdf"
     )
 
-    return jsonify({"status": "success", "message": f"PDF sent to {recipient}"}), 200
+    return jsonify({"status": "success", "message": f"Request Successfully Received"}), 200
