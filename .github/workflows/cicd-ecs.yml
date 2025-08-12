@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: us-east-1
-      ECR_REPOSITORY: my-flask-app
-      ECS_CLUSTER: my-flask-cluster
-      ECS_SERVICE: my-flask-service
+      ECR_REPOSITORY: gr-be
+      ECS_CLUSTER: gf-api-cluster
+      ECS_SERVICE: gf-be-service
     steps:
       - name: Checkout
         uses: actions/checkout@v4

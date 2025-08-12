@@ -4,12 +4,12 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "1024",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::843237893084:role/gr-admin",
+  "taskRoleArn": "arn:aws:iam::843237893084:role/ecsTaskRole",
   "containerDefinitions": [
     {
       "name": "gf-be",
-      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/REPOSITORY:IMAGE_TAG",
+      "image": "843237893084.dkr.ecr.us-east-1.amazonaws.com/gr-be:v0.1.0",
       "portMappings": [{ "containerPort": 8000, "protocol": "tcp" }],
       "essential": true,
       "environment": [
@@ -19,7 +19,7 @@
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/gf-be",
-          "awslogs-region": "REGION",
+          "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
       }
