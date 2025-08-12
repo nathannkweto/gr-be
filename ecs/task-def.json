@@ -8,7 +8,7 @@
   "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
   "containerDefinitions": [
     {
-      "name": "my-flask-app",
+      "name": "gf-be",
       "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/REPOSITORY:IMAGE_TAG",
       "portMappings": [{ "containerPort": 8000, "protocol": "tcp" }],
       "essential": true,
@@ -18,7 +18,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/my-flask-app",
+          "awslogs-group": "/ecs/gf-be",
           "awslogs-region": "REGION",
           "awslogs-stream-prefix": "ecs"
         }

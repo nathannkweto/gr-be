@@ -21,4 +21,4 @@ ENV PORT=8000
 ENV PYTHONUNBUFFERED=1
 
 # Run gunicorn (adjust workers to your app)
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8000", "--workers", "3", "--threads", "2"]
+CMD ["gunicorn", "wsgi:app", "--bind", "0.0.0.0:8000", "--workers", "3", "--threads", "2"]
